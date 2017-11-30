@@ -19,8 +19,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
@@ -29,14 +31,21 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     EditText prenom;
     EditText tel;
     EditText mail;
+    FileOutputStream fOut = null;
 
     private Button button;
 
     Contact c1;
+    private static String[] PERMISSIONS_MODIF = {Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+    private static final int REQUEST_CAMERA = 0;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
 
 
         super.onCreate(savedInstanceState);
@@ -62,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 Log.e("Contact mail", mail.getText().toString());
                 Log.e("Contact tel", tel.getText().toString());
 
+
                 //creationvCard
                 File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS), "contact.vcf");
@@ -82,19 +92,26 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
         });
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,  int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         Log.v("PASSAGE  PERMISSIOM", "BEFORE IF");
 
-        if (true) {
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Log.v("PERMISSION", "Permission: " + permissions[0] + "was " + grantResults[0]);
-            Log.e("PASSAGE  PERMISSIOM", "ACCORDÉE");
+            Log.e("PASSAGE  PERMISSION", "ACCORDÉE");
+        }else if (grantResults[0] == PackageManager.PERMISSION_DENIED){
+            Log.e("PASSAGE  PERMISSION", "REFUSEE");
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                Log.e("PASSAGE  PERMISSION", "REFUSEE");
+            }else{
+                //Never ask again selected, or device policy prohibits the app from having that permission.
+                //So, disable that feature, or fall back to another situation...
+            }
 
         }
     }
@@ -143,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             } else {
                 // NFC and Android Beam both are enabled
                 // File to be transferred
-                String fileName = "sharingan.png";
+                String fileName = "contact.vcf";
 
                 // Retrieve the path to the user's public pictures directory
                 File fileDirectory = Environment.getExternalStoragePublicDirectory(
