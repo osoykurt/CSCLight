@@ -9,14 +9,18 @@ public class Contact {
     String nom;
     String prenom;
     String tel;
+    String mail;
 
     public Contact(String nom, String prenom, String tel) {
         this.nom = nom;
         this.prenom = prenom;
+        this.mail = mail;
         this.tel = tel;
+
     }
 
     public String getNom() {
+
         return nom;
     }
 
@@ -38,6 +42,14 @@ public class Contact {
 
     public void setTel(String tel) {
         this.tel = tel;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
     }
 }
 
