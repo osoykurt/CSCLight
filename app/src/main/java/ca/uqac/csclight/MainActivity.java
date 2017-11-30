@@ -4,7 +4,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+
 import android.widget.EditText;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,11 +22,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        String  name,surname,telephone,email;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
 
     }
+
 
 
     public void valider(View view){
@@ -39,5 +44,5 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    
 }
