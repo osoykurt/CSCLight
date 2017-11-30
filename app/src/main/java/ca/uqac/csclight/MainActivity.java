@@ -1,5 +1,6 @@
 package ca.uqac.csclight;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -7,23 +8,29 @@ import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     EditText nom;
     EditText prenom;
     EditText tel;
     EditText mail;
+
+    private Button button;
 
     Contact c1;
 
@@ -31,31 +38,67 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        String name, surname, telephone, email;
-
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-    }
-
-
-    public void valider(View view) {
         nom = (EditText) findViewById(R.id.editText1);
         prenom = (EditText) findViewById(R.id.editText2);
         mail = (EditText) findViewById(R.id.editText3);
         tel = (EditText) findViewById(R.id.editText4);
 
+        button = (Button) findViewById(R.id.button_valider);
 
-        c1 = new Contact(nom.getText().toString(), prenom.getText().toString(), mail.getText().toString(), tel.getText().toString());
+        button.setOnClickListener(new View.OnClickListener() {
 
-        Log.e("Contact name", nom.getText().toString());
-        Log.e("Contact srname", prenom.getText().toString());
-        Log.e("Contact mail", mail.getText().toString());
-        Log.e("Contact tel", tel.getText().toString());
 
+            @Override
+            public void onClick(View view) {
+                isStoragePermissionGranted();
+                c1 = new Contact(nom.getText().toString(), prenom.getText().toString(), mail.getText().toString(), tel.getText().toString());
+
+                Log.e("Contact name", nom.getText().toString());
+                Log.e("Contact srname", prenom.getText().toString());
+                Log.e("Contact mail", mail.getText().toString());
+                Log.e("Contact tel", tel.getText().toString());
+
+                //creationvCard
+                File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS), "contact.vcf");
+                Log.e("Nom fichier", vcfFile.getName());
+                FileWriter fw = null;
+                try {
+                    fw = new FileWriter(vcfFile);
+
+                    fw.write("BEGIN:VCARD\r\n");
+                    fw.write("VERSION:3.0\r\n");
+                    fw.write("N:" + c1.getNom() + ";" + c1.getPrenom() + "\r\n");
+                    fw.write("FN:" + c1.getNom() + " " + c1.getPrenom() + "\r\n");
+                    fw.write("TEL;TYPE=WORK,VOICE:" + c1.getTel() + "\r\n");
+                    fw.write("EMAIL;TYPE=PREF,INTERNET:" + c1.getMail() + "\r\n");
+                    fw.write("END:VCARD\r\n");
+                    fw.close();
+                    Log.e("Fichier créé", "Fichier créé");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Log.v("PASSAGE  PERMISSIOM", "BEFORE IF");
+
+        if (true) {
+            Log.v("PERMISSION", "Permission: " + permissions[0] + "was " + grantResults[0]);
+            Log.e("PASSAGE  PERMISSIOM", "ACCORDÉE");
+
+        }
+    }
+
 
 
     public void envoyer(View view) {
@@ -104,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Retrieve the path to the user's public pictures directory
                 File fileDirectory = Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_PICTURES);
+                        Environment.DIRECTORY_DOWNLOADS);
 
                 // Create a new file using the specified directory and name
                 File fileToTransfer = new File(fileDirectory, fileName);
@@ -115,4 +158,25 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    // SAVE PERMISSION INUTILE SI SDK VERSION < 23
+    public boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v("PERMISSION", "Permission is granted");
+                return true;
+            } else {
+                Log.v("PERMISSION", "Permission is revoked");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("PERMISSION", "Permission is granted");
+            return true;
+        }
+    }
+
+
 }
+
