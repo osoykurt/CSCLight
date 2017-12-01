@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 Boolean switchState=simpleSwitch.isChecked();
                 c1=new Contact();
 
-                if (switchState=false){
+                if (switchState==false){
                     c1.setNom("");
                 }
                 else{
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
 
 
-                if (switchState=false){
+                if (switchState==false){
                     c1.setPrenom("");
                 }
                 else{
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 switchState=simpleSwitch.isChecked();
 
 
-                if (switchState=false){
+                if (switchState==false){
                     c1.setMail("");
                 }
                 else{
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 simpleSwitch = (Switch) findViewById(R.id.switch4);
                 switchState=simpleSwitch.isChecked();
 
-                if (switchState=false){
+                if (switchState==false){
                     c1.setTel("");
                 }
                 else{
