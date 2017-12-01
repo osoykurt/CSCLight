@@ -79,10 +79,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
 
                 if (switchState=false){
-                    c1.setNom("");
+                    c1.setPrenom("");
                 }
                 else{
-                    c1.setNom(prenom.getText().toString());
+                    c1.setPrenom(prenom.getText().toString());
                 }
 
 
@@ -91,20 +91,20 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
 
                 if (switchState=false){
-                    c1.setNom("");
+                    c1.setMail("");
                 }
                 else{
-                    c1.setNom(mail.getText().toString());
+                    c1.setMail(mail.getText().toString());
                 }
 
                 simpleSwitch = (Switch) findViewById(R.id.switch4);
                 switchState=simpleSwitch.isChecked();
 
                 if (switchState=false){
-                    c1.setNom("");
+                    c1.setTel("");
                 }
                 else{
-                    c1.setNom(tel.getText().toString());
+                    c1.setTel(tel.getText().toString());
                 }
 
 

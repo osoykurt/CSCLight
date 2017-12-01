@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CSCLight.iml" filepath="$PROJECT_DIR$/CSCLight.iml" />
+      <module fileurl="file://C:\Users\Utilisateur\Documents\GitHub\CSCLight\CSCLight.iml" filepath="C:\Users\Utilisateur\Documents\GitHub\CSCLight\CSCLight.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://C:\Users\Utilisateur\Documents\GitHub\CSCLight\app\app.iml" filepath="C:\Users\Utilisateur\Documents\GitHub\CSCLight\app\app.iml" />
     </modules>
