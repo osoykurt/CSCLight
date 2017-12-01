@@ -41,21 +41,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
 
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        nom = (EditText) findViewById(R.id.editText1);
-        prenom = (EditText) findViewById(R.id.editText2);
-        mail = (EditText) findViewById(R.id.editText3);
-        tel = (EditText) findViewById(R.id.editText4);
+        nom = (EditText) findViewById(R.id.edit_name);
+        prenom = (EditText) findViewById(R.id.edit_surname);
+        mail = (EditText) findViewById(R.id.edit_mail);
+        tel = (EditText) findViewById(R.id.edit_tel);
 
         button = (Button) findViewById(R.id.button_valider);
 
@@ -73,21 +69,33 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 Log.e("Contact tel", tel.getText().toString());
 
 
+                String infoContact = "BEGIN:VCARD\n" +
+                        "VERSION:3.0\n" +
+                        "N:" + c1.getPrenom() + ";" + c1.getNom() + "\n" +
+                        "FN:" + c1.getPrenom() + " " + c1.getNom() + "\n" +
+                        "ORG: \n" +
+                        "TITLE: \n" +
+                        "LOGO;VALUE=URL;TYPE=GIF: \n" +
+                        "TEL;TYPE=WORK;VOICE: " + c1.getTel() + "\n" +
+                        "ADR;TYPE=WORK: \n" +
+                        "LABEL;TYPE=WORK: \n" +
+                        "ADR;TYPE=HOME: \n" +
+                        "LABEL;TYPE=HOME: \n" +
+                        "EMAIL;TYPE=PREF,INTERNET:" + c1.getMail() + " \n" +
+                        "REV:20080454T195242Z\n" +
+                        "END:VCARD";
+
+                Log.e("MESSAGE VCARD", infoContact);
                 //creationvCard
                 File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS), "contact.vcf");
+                        Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
                 Log.e("Nom fichier", vcfFile.getName());
                 FileWriter fw = null;
                 try {
                     fw = new FileWriter(vcfFile);
 
-                    fw.write("BEGIN:VCARD\r\n");
-                    fw.write("VERSION:3.0\r\n");
-                    fw.write("N:" + c1.getNom() + ";" + c1.getPrenom() + "\r\n");
-                    fw.write("FN:" + c1.getNom() + " " + c1.getPrenom() + "\r\n");
-                    fw.write("TEL;TYPE=WORK,VOICE:" + c1.getTel() + "\r\n");
-                    fw.write("EMAIL;TYPE=PREF,INTERNET:" + c1.getMail() + "\r\n");
-                    fw.write("END:VCARD\r\n");
+                    fw.write(infoContact);
+
                     fw.close();
                     Log.e("Fichier créé", "Fichier créé");
                 } catch (IOException e) {
@@ -98,18 +106,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,  int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         Log.v("PASSAGE  PERMISSIOM", "BEFORE IF");
 
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Log.v("PERMISSION", "Permission: " + permissions[0] + "was " + grantResults[0]);
             Log.e("PASSAGE  PERMISSION", "ACCORDÉE");
-        }else if (grantResults[0] == PackageManager.PERMISSION_DENIED){
+        } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
             Log.e("PASSAGE  PERMISSION", "REFUSEE");
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 Log.e("PASSAGE  PERMISSION", "REFUSEE");
-            }else{
+            } else {
                 //Never ask again selected, or device policy prohibits the app from having that permission.
                 //So, disable that feature, or fall back to another situation...
             }
@@ -118,12 +126,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
 
-
     public void envoyer(View view) {
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         // Check whether NFC is enabled on device
-        if(!nfcAdapter.isEnabled()){
+        if (!nfcAdapter.isEnabled()) {
             // NFC is disabled, show the settings UI
             // to enable NFC
             Toast.makeText(this, "Please enable NFC.",
@@ -131,20 +138,19 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
         }
         // Check whether Android Beam feature is enabled on device
-        else if(!nfcAdapter.isNdefPushEnabled()) {
+        else if (!nfcAdapter.isNdefPushEnabled()) {
             // Android Beam is disabled, show the settings UI
             // to enable Android Beam
             Toast.makeText(this, "Please enable Android Beam.",
                     Toast.LENGTH_SHORT).show();
             startActivity(new Intent(Settings.ACTION_NFCSHARING_SETTINGS));
-        }
-        else {
+        } else {
             // NFC and Android Beam both are enabled
 
             // File to be transferred
             // For the sake of this tutorial I've placed an image
             // named 'wallpaper.png' in the 'Pictures' directory
-            String fileName = "contact.vcf";
+            String fileName = "CSCLIGHT.vcf";
 
             // Retrieve the path to the user's public pictures directory
             File fileDirectory = Environment
@@ -158,61 +164,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             nfcAdapter.setBeamPushUris(
                     new Uri[]{Uri.fromFile(fileToTransfer)}, this);
 
-      /*  NfcAdapter nfcAdapter;
 
-        PackageManager pm = this.getPackageManager();
-        // Check whether NFC is available on device
-
-        if (!pm.hasSystemFeature(PackageManager.FEATURE_NFC)) {
-            // NFC is not available on the device.
-            Toast.makeText(this, "The device does not has NFC hardware.",
-                    Toast.LENGTH_SHORT).show();
         }
-        // Check whether device is running Android 4.1 or higher
-        else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            // Android Beam feature is not supported.
-            Toast.makeText(this, "Android Beam is not supported.",
-                    Toast.LENGTH_SHORT).show();
-        } else {
-            // NFC and Android Beam file transfer is supported.
-            Toast.makeText(this, "Android Beam is supported on your device.",
-                    Toast.LENGTH_SHORT).show();
-
-            nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-
-            // Check whether NFC is enabled on device
-            if (!nfcAdapter.isEnabled()) {
-                // NFC is disabled, show the settings UI
-                // to enable NFC
-                Toast.makeText(this, "Please enable NFC.",
-                        Toast.LENGTH_SHORT).show();
-
-                startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
-            }
-            // Check whether Android Beam feature is enabled on device
-            else if (!nfcAdapter.isNdefPushEnabled()) {
-                // Android Beam is disabled, show the settings UI
-                // to enable Android Beam
-                Toast.makeText(this, "Please enable Android Beam.",
-                        Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(Settings.ACTION_NFCSHARING_SETTINGS));
-            } else {
-                // NFC and Android Beam both are enabled
-                // File to be transferred
-                String fileName = "contact.vcf";
-
-                // Retrieve the path to the user's public pictures directory
-                File fileDirectory = Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS);
-
-                // Create a new file using the specified directory and name
-                File fileToTransfer = new File(fileDirectory, fileName);
-                fileToTransfer.setReadable(true, false);
-
-                nfcAdapter.setBeamPushUris(
-                        new Uri[]{Uri.fromFile(fileToTransfer)}, this);*/
-            }
-        }
+    }
 
 
     // SAVE PERMISSION INUTILE SI SDK VERSION < 23
