@@ -16,6 +16,7 @@ import android.view.View;
 
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import java.io.File;
@@ -65,7 +66,52 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             @Override
             public void onClick(View view) {
                 isStoragePermissionGranted();
-                c1 = new Contact(nom.getText().toString(), prenom.getText().toString(), mail.getText().toString(), tel.getText().toString());
+                Switch simpleSwitch = (Switch) findViewById(R.id.switch1);
+                Boolean switchState=simpleSwitch.isChecked();
+                c1=new Contact();
+
+                if (switchState=false){
+                    c1.setNom("");
+                }
+                else{
+                    c1.setNom(nom.getText().toString());
+                }
+
+                simpleSwitch = (Switch) findViewById(R.id.switch2);
+                switchState=simpleSwitch.isChecked();
+
+
+
+                if (switchState=false){
+                    c1.setNom("");
+                }
+                else{
+                    c1.setNom(prenom.getText().toString());
+                }
+
+
+                simpleSwitch = (Switch) findViewById(R.id.switch3);
+                switchState=simpleSwitch.isChecked();
+
+
+                if (switchState=false){
+                    c1.setNom("");
+                }
+                else{
+                    c1.setNom(mail.getText().toString());
+                }
+
+                simpleSwitch = (Switch) findViewById(R.id.switch4);
+                switchState=simpleSwitch.isChecked();
+
+                if (switchState=false){
+                    c1.setNom("");
+                }
+                else{
+                    c1.setNom(tel.getText().toString());
+                }
+
+
 
                 Log.e("Contact name", nom.getText().toString());
                 Log.e("Contact srname", prenom.getText().toString());

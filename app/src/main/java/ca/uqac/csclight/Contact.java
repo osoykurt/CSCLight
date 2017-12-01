@@ -19,6 +19,9 @@ public class Contact {
 
     }
 
+    public Contact() {
+    }
+
     public String getNom() {return nom;}
 
     public void setNom(String nom) {
