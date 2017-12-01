@@ -27,6 +27,7 @@ import java.io.OutputStreamWriter;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
+    NfcAdapter nfcAdapter;
     EditText nom;
     EditText prenom;
     EditText tel;
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private static String[] PERMISSIONS_MODIF = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-    private static final int REQUEST_CAMERA = 0;
+
 
 
     @Override
@@ -119,7 +120,45 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
 
     public void envoyer(View view) {
-        NfcAdapter nfcAdapter;
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        // Check whether NFC is enabled on device
+        if(!nfcAdapter.isEnabled()){
+            // NFC is disabled, show the settings UI
+            // to enable NFC
+            Toast.makeText(this, "Please enable NFC.",
+                    Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
+        }
+        // Check whether Android Beam feature is enabled on device
+        else if(!nfcAdapter.isNdefPushEnabled()) {
+            // Android Beam is disabled, show the settings UI
+            // to enable Android Beam
+            Toast.makeText(this, "Please enable Android Beam.",
+                    Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(Settings.ACTION_NFCSHARING_SETTINGS));
+        }
+        else {
+            // NFC and Android Beam both are enabled
+
+            // File to be transferred
+            // For the sake of this tutorial I've placed an image
+            // named 'wallpaper.png' in the 'Pictures' directory
+            String fileName = "contact.vcf";
+
+            // Retrieve the path to the user's public pictures directory
+            File fileDirectory = Environment
+                    .getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DOWNLOADS);
+
+            // Create a new file using the specified directory and name
+            File fileToTransfer = new File(fileDirectory, fileName);
+            fileToTransfer.setReadable(true, false);
+
+            nfcAdapter.setBeamPushUris(
+                    new Uri[]{Uri.fromFile(fileToTransfer)}, this);
+
+      /*  NfcAdapter nfcAdapter;
 
         PackageManager pm = this.getPackageManager();
         // Check whether NFC is available on device
@@ -171,10 +210,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 fileToTransfer.setReadable(true, false);
 
                 nfcAdapter.setBeamPushUris(
-                        new Uri[]{Uri.fromFile(fileToTransfer)}, this);
+                        new Uri[]{Uri.fromFile(fileToTransfer)}, this);*/
             }
         }
-    }
+
 
     // SAVE PERMISSION INUTILE SI SDK VERSION < 23
     public boolean isStoragePermissionGranted() {
