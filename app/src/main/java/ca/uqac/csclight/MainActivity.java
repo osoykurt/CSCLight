@@ -1,7 +1,6 @@
 package ca.uqac.csclight;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -9,15 +8,17 @@ import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Environment;
+import android.os.StrictMode;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
@@ -27,7 +28,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, View.OnClickListener {
@@ -173,7 +177,15 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
-    //DEMANDE DE PERMISSIONS
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        File f = new File(Environment.getExternalStoragePublicDirectory("beam") + "/CSCLight.vcf");
+        f.delete();
+
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -217,6 +229,32 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             envoiNFC();
         } else if (view.getId() == R.id.button_recevoir) {
             //synchronization
+            if (Build.VERSION.SDK_INT >= 24) {
+                Method m = null;
+                try {
+                    m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    m.invoke(null);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+
+            Intent i = new Intent();
+
+            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            i.setAction(android.content.Intent.ACTION_VIEW);
+            File f = new File(Environment.getExternalStoragePublicDirectory("beam") + "/CSCLight.vcf");
+            i.setDataAndType(Uri.fromFile(f), "text/x-vcard");
+            startActivity(i);
         }
     }
 
@@ -237,22 +275,22 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 "REV:20080454T195242Z\n" +
                 "END:VCARD";
 
-        Log.e("MESSAGE VCARD", infoContact);
+            Log.e("MESSAGE VCARD", infoContact);
 
-        File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
-        Log.e("Nom fichier", vcfFile.getName());
-        FileWriter fw = null;
-        try {
-            fw = new FileWriter(vcfFile);
+            File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
+            Log.e("Nom fichier", vcfFile.getName());
+            FileWriter fw = null;
+            try {
+                fw = new FileWriter(vcfFile);
 
-            fw.write(infoContact);
+                fw.write(infoContact);
 
-            fw.close();
-            Log.e("Fichier créé", "Fichier créé");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                fw.close();
+                Log.e("Fichier créé", "Fichier créé");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
     private void checkSwitch() {
@@ -282,10 +320,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         Switch simpleSwitch = (Switch) findViewById(R.id.switch_mail);
         Boolean switchState = simpleSwitch.isChecked();
 
-
+        checkMail(mail.getText().toString());
         if (switchState == false) {
             c1.setMail("");
         } else {
+            checkMail(mail.getText().toString());
             c1.setMail(mail.getText().toString());
         }
 
@@ -296,6 +335,16 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             c1.setTel("");
         } else {
             c1.setTel(tel.getText().toString());
+        }
+
+    }
+
+    private void checkMail(String mail) {
+        Pattern p = Pattern.compile(".+@.+\\.[a-z]+");
+        Matcher m = p.matcher(mail);
+        if (!m.matches()) {
+            Toast.makeText(MainActivity.this, R.string.email_format_error,
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -317,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     public void envoiNFC() {
-
+        Log.e("PASSAGE NFC", "NFC");
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         // Check whether NFC is enabled on device
@@ -351,6 +400,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
             nfcAdapter.setBeamPushUris(
                     new Uri[]{Uri.fromFile(fileToTransfer)}, this);
+
+            Log.e("PASSAGE NFC", "OK");
 
 
         }
