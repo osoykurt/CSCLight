@@ -3,6 +3,7 @@ package ca.uqac.csclight;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
@@ -12,6 +13,8 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 
@@ -35,15 +38,19 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     EditText tel;
     EditText mail;
     FileOutputStream fOut = null;
+    SharedPreferences sharedPref;
 
     private Button buttonValider, buttonEnvoyer, buttonRecevoir;
+
+    public static final String SurnameKey = "surnameKey";
+    public static final String NameKey = "nameKey";
+    public static final String PhoneKey = "phoneKey";
+    public static final String EmailKey = "emailKey";
 
     Contact c1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -53,7 +60,75 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         tel = (EditText) findViewById(R.id.edit_tel);
 
         buttonValider = (Button) findViewById(R.id.button_valider);
+
+        sharedPref = getSharedPreferences(getString(R.string.shared_pref), Context.MODE_PRIVATE);
+
+        if (sharedPref.contains(SurnameKey) && sharedPref.contains(NameKey)) {
+            nom.setText(sharedPref.getString(SurnameKey, null));
+            prenom.setText(sharedPref.getString(NameKey, null));
+            mail.setText(sharedPref.getString(EmailKey, null));
+            tel.setText(sharedPref.getString(PhoneKey, null));
+        }
+
+        buttonValiderManager();
         buttonValider.setOnClickListener(this);
+
+        nom.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                buttonValiderManager();
+            }
+        });
+        prenom.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                buttonValiderManager();
+            }
+        });
+        mail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                buttonValiderManager();
+            }
+        });
+        tel.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                buttonValiderManager();
+            }
+        });
 
         buttonEnvoyer = (Button) findViewById(R.id.button_envoyer);
         buttonEnvoyer.setOnClickListener(this);
@@ -62,7 +137,40 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         buttonRecevoir.setOnClickListener(this);
 
 
+    }
 
+    //Activation, désactivation button Valider
+    private void buttonValiderManager() {
+        Log.v("Test", "function");
+        if (sharedPref.contains(SurnameKey) && sharedPref.contains(NameKey)) {
+            Log.v("Test", "First if");
+
+            if (sharedPref.getString(SurnameKey, null).equals(nom.getText().toString())
+                    && sharedPref.getString(NameKey, null).equals(prenom.getText().toString())) {
+                Log.v("Test", "First if - first if ");
+
+                if(sharedPref.getString(PhoneKey, null).equals(tel.getText().toString())
+                        && sharedPref.getString(EmailKey, null).equals(mail.getText().toString())) {
+
+                    buttonValider.setEnabled(false);
+                }
+                else {
+                    buttonValider.setEnabled(true);
+                }
+            }
+            else {
+                Log.v("Test", "First if - else");
+                buttonValider.setEnabled(true);
+            }
+        }
+        else
+        if ((nom.getText().toString().equals("") || prenom.getText().toString().equals(""))) {
+            Log.v("Test", "Else - first if");
+            buttonValider.setEnabled(false);
+        } else {
+            Log.v("Test", "Else - else");
+            buttonValider.setEnabled(true);
+        }
     }
 
     //DEMANDE DE PERMISSIONS
@@ -91,58 +199,67 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             checkSwitch();
 
             Log.e("Contact name", nom.getText().toString());
-            Log.e("Contact srname", prenom.getText().toString());
+            Log.e("Contact surname", prenom.getText().toString());
             Log.e("Contact mail", mail.getText().toString());
             Log.e("Contact tel", tel.getText().toString());
 
-            //creationvCard
-            String infoContact = "BEGIN:VCARD\n" +
-                    "VERSION:3.0\n" +
-                    "N:" + c1.getPrenom() + ";" + c1.getNom() + "\n" +
-                    "FN:" + c1.getPrenom() + " " + c1.getNom() + "\n" +
-                    "ORG: \n" +
-                    "TITLE: \n" +
-                    "LOGO;VALUE=URL;TYPE=GIF: \n" +
-                    "TEL;TYPE=WORK;VOICE: " + c1.getTel() + "\n" +
-                    "ADR;TYPE=WORK: \n" +
-                    "LABEL;TYPE=WORK: \n" +
-                    "ADR;TYPE=HOME: \n" +
-                    "LABEL;TYPE=HOME: \n" +
-                    "EMAIL;TYPE=PREF,INTERNET:" + c1.getMail() + " \n" +
-                    "REV:20080454T195242Z\n" +
-                    "END:VCARD";
+            SharedPreferences.Editor editor = sharedPref.edit();
 
-            Log.e("MESSAGE VCARD", infoContact);
+            editor.putString(SurnameKey, nom.getText().toString());
+            editor.putString(NameKey, prenom.getText().toString());
+            editor.putString(PhoneKey, tel.getText().toString());
+            editor.putString(EmailKey, mail.getText().toString());
+            editor.commit();
 
-            File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
-            Log.e("Nom fichier", vcfFile.getName());
-            FileWriter fw = null;
-            try {
-                fw = new FileWriter(vcfFile);
-
-                fw.write(infoContact);
-
-                fw.close();
-                Log.e("Fichier créé", "Fichier créé");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            buildVcard(); //creationvCard
         } else if (view.getId() == R.id.button_envoyer) {
             //envoie le fichier situé dans Downloads dans le stream NFC
             envoiNFC();
         } else if (view.getId() == R.id.button_recevoir) {
             //synchronization
         }
+    }
 
+    private void buildVcard() {
+        String infoContact = "BEGIN:VCARD\n" +
+                "VERSION:3.0\n" +
+                "N:" + c1.getPrenom() + ";" + c1.getNom() + "\n" +
+                "FN:" + c1.getPrenom() + " " + c1.getNom() + "\n" +
+                "ORG: \n" +
+                "TITLE: \n" +
+                "LOGO;VALUE=URL;TYPE=GIF: \n" +
+                "TEL;TYPE=WORK;VOICE: " + c1.getTel() + "\n" +
+                "ADR;TYPE=WORK: \n" +
+                "LABEL;TYPE=WORK: \n" +
+                "ADR;TYPE=HOME: \n" +
+                "LABEL;TYPE=HOME: \n" +
+                "EMAIL;TYPE=PREF,INTERNET:" + c1.getMail() + " \n" +
+                "REV:20080454T195242Z\n" +
+                "END:VCARD";
 
+        Log.e("MESSAGE VCARD", infoContact);
+
+        File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
+        Log.e("Nom fichier", vcfFile.getName());
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(vcfFile);
+
+            fw.write(infoContact);
+
+            fw.close();
+            Log.e("Fichier créé", "Fichier créé");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void checkSwitch() {
 
         c1 = new Contact();
 
-        Switch simpleSwitch = (Switch) findViewById(R.id.switch_name);
+        /*Switch simpleSwitch = (Switch) findViewById(R.id.switch_name);
         Boolean switchState = simpleSwitch.isChecked();
 
 
@@ -160,10 +277,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             c1.setPrenom("");
         } else {
             c1.setPrenom(prenom.getText().toString());
-        }
+        }*/
 
-        simpleSwitch = (Switch) findViewById(R.id.switch_mail);
-        switchState = simpleSwitch.isChecked();
+        Switch simpleSwitch = (Switch) findViewById(R.id.switch_mail);
+        Boolean switchState = simpleSwitch.isChecked();
 
 
         if (switchState == false) {
