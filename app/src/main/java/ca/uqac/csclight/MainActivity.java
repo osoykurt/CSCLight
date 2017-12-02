@@ -68,7 +68,15 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     }
 
-    //DEMANDE DE PERMISSIONS
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        File f = new File(Environment.getExternalStoragePublicDirectory("beam") + "/CSCLight.vcf");
+        f.delete();
+
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -158,11 +166,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             i.setAction(android.content.Intent.ACTION_VIEW);
-            i.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/CSCLight.vcf")), "text/x-vcard");
+            File f = new File(Environment.getExternalStoragePublicDirectory("beam") + "/CSCLight.vcf");
+            i.setDataAndType(Uri.fromFile(f), "text/x-vcard");
             startActivity(i);
         }
     }
-    
+
     private void checkSwitch() {
 
         c1 = new Contact();
@@ -237,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     public void envoiNFC() {
-
+        Log.e("PASSAGE NFC", "NFC");
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         // Check whether NFC is enabled on device
@@ -271,6 +280,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
             nfcAdapter.setBeamPushUris(
                     new Uri[]{Uri.fromFile(fileToTransfer)}, this);
+
+            Log.e("PASSAGE NFC", "OK");
 
 
         }

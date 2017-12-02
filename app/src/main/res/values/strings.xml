@@ -7,7 +7,7 @@
     <string name="mail">adresse mail</string>
     <string name="valider">Valider Contact</string>
     <string name="envoyer">Envoyer</string>
-    <string name="recevoir">Recevoir</string>
+    <string name="recevoir">Synchroniser</string>
     <string name="csclogo">CSCLogo</string>
     <string name="email_format_error">Erreur format de mail invalide</string>
 </resources>
