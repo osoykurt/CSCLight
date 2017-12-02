@@ -9,4 +9,5 @@
     <string name="envoyer">Envoyer</string>
     <string name="recevoir">Recevoir</string>
     <string name="csclogo">CSCLogo</string>
+    <string name="email_format_error">Erreur format de mail invalide</string>
 </resources>

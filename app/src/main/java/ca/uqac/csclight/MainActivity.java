@@ -1,7 +1,6 @@
 package ca.uqac.csclight;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -24,7 +23,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, View.OnClickListener {
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             checkSwitch();
 
             Log.e("Contact name", nom.getText().toString());
-            Log.e("Contact srname", prenom.getText().toString());
+            Log.e("Contact surname", prenom.getText().toString());
             Log.e("Contact mail", mail.getText().toString());
             Log.e("Contact tel", tel.getText().toString());
 
@@ -165,10 +165,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         simpleSwitch = (Switch) findViewById(R.id.switch_mail);
         switchState = simpleSwitch.isChecked();
 
-
+        checkMail(mail.getText().toString());
         if (switchState == false) {
             c1.setMail("");
         } else {
+            checkMail(mail.getText().toString());
             c1.setMail(mail.getText().toString());
         }
 
@@ -178,7 +179,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         if (switchState == false) {
             c1.setTel("");
         } else {
+
             c1.setTel(tel.getText().toString());
+        }
+    }
+
+    private void checkMail(String mail) {
+        Pattern p  = Pattern.compile(".+@.+\\.[a-z]+");
+        Matcher m = p.matcher(mail);
+        if (!m.matches()) {
+            Toast.makeText(MainActivity.this, R.string.email_format_error,
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
