@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="ca.uqac.csclight.MainActivity"
-    tools:layout_editor_absoluteY="81dp">
+    tools:layout_editor_absoluteY="81dp"
+    android:orientation="vertical">
+
 
     <TextView
         android:id="@+id/TextView1"
@@ -122,34 +124,35 @@
         android:checked="true"
         app:layout_constraintBottom_toTopOf="@+id/switch_surname"
         app:layout_constraintEnd_toStartOf="@+id/edit_name"
-        app:layout_constraintHorizontal_bias="0.486"
+        app:layout_constraintHorizontal_bias="0.38"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.944" />
+        app:layout_constraintVertical_bias="1.0" />
 
     <Switch
         android:id="@+id/switch_surname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:checked="true"
         app:layout_constraintBottom_toTopOf="@+id/switch_mail"
         app:layout_constraintEnd_toStartOf="@+id/edit_surname"
-        app:layout_constraintHorizontal_bias="0.544"
+        app:layout_constraintHorizontal_bias="0.425"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Switch
         android:id="@+id/switch_mail"
         android:layout_width="wrap_content"
         android:layout_height="36dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="20dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:checked="true"
         app:layout_constraintBottom_toTopOf="@+id/switch_tel"
         app:layout_constraintEnd_toStartOf="@+id/edit_mail"
-        app:layout_constraintHorizontal_bias="0.679"
+        app:layout_constraintHorizontal_bias="0.53"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Switch
@@ -162,7 +165,7 @@
         android:checked="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/edit_tel"
-        app:layout_constraintHorizontal_bias="0.833"
+        app:layout_constraintHorizontal_bias="0.651"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
