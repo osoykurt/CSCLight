@@ -39,9 +39,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private Button buttonValider, buttonEnvoyer, buttonRecevoir;
 
     Contact c1;
-    private static String[] PERMISSIONS_MODIF = {Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,7 +137,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
 
     }
-
 
     private void checkSwitch() {
 
