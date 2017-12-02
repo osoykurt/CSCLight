@@ -1,6 +1,7 @@
 package ca.uqac.csclight;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -31,7 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 
-public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, View.OnClickListener {
 
     NfcAdapter nfcAdapter;
     EditText nom;
@@ -40,12 +41,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     EditText mail;
     FileOutputStream fOut = null;
 
-    private Button button;
+    private Button buttonValider, buttonEnvoyer, buttonRecevoir;
 
     Contact c1;
-    private static String[] PERMISSIONS_MODIF = {Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,135 +57,23 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         mail = (EditText) findViewById(R.id.edit_mail);
         tel = (EditText) findViewById(R.id.edit_tel);
 
-        button = (Button) findViewById(R.id.button_valider);
+        buttonValider = (Button) findViewById(R.id.button_valider);
+        buttonValider.setOnClickListener(this);
 
-        button.setOnClickListener(new View.OnClickListener() {
+        buttonEnvoyer = (Button) findViewById(R.id.button_envoyer);
+        buttonEnvoyer.setOnClickListener(this);
 
-
-            @Override
-            public void onClick(View view) {
-                isStoragePermissionGranted();
-                Switch simpleSwitch = (Switch) findViewById(R.id.switch1);
-                Boolean switchState=simpleSwitch.isChecked();
-                c1=new Contact();
-
-                if (switchState==false){
-                    c1.setNom("");
-                }
-                else{
-                    c1.setNom(nom.getText().toString());
-                }
-
-                simpleSwitch = (Switch) findViewById(R.id.switch2);
-                switchState=simpleSwitch.isChecked();
+        buttonRecevoir = (Button) findViewById(R.id.button_recevoir);
+        buttonRecevoir.setOnClickListener(this);
 
 
 
-                if (switchState==false){
-                    c1.setPrenom("");
-                }
-                else{
-                    c1.setPrenom(prenom.getText().toString());
-                }
-
-
-                simpleSwitch = (Switch) findViewById(R.id.switch3);
-                switchState=simpleSwitch.isChecked();
-
-
-                if (switchState==false){
-                    c1.setMail("");
-                }
-                else{
-                    c1.setMail(mail.getText().toString());
-                }
-
-                simpleSwitch = (Switch) findViewById(R.id.switch4);
-                switchState=simpleSwitch.isChecked();
-
-                if (switchState==false){
-                    c1.setTel("");
-                }
-                else{
-                    c1.setTel(tel.getText().toString());
-                }
-
-
-
-                Log.e("Contact name", nom.getText().toString());
-                Log.e("Contact srname", prenom.getText().toString());
-                Log.e("Contact mail", mail.getText().toString());
-                Log.e("Contact tel", tel.getText().toString());
-
-
-                String infoContact = "BEGIN:VCARD\n" +
-                        "VERSION:3.0\n" +
-                        "N:" + c1.getPrenom() + ";" + c1.getNom() + "\n" +
-                        "FN:" + c1.getPrenom() + " " + c1.getNom() + "\n" +
-                        "ORG: \n" +
-                        "TITLE: \n" +
-                        "LOGO;VALUE=URL;TYPE=GIF: \n" +
-                        "TEL;TYPE=WORK;VOICE: " + c1.getTel() + "\n" +
-                        "ADR;TYPE=WORK: \n" +
-                        "LABEL;TYPE=WORK: \n" +
-                        "ADR;TYPE=HOME: \n" +
-                        "LABEL;TYPE=HOME: \n" +
-                        "EMAIL;TYPE=PREF,INTERNET:" + c1.getMail() + " \n" +
-                        "REV:20080454T195242Z\n" +
-                        "END:VCARD";
-
-                Log.e("MESSAGE VCARD", infoContact);
-                //creationvCard
-                File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
-                Log.e("Nom fichier", vcfFile.getName());
-                FileWriter fw = null;
-                try {
-                    fw = new FileWriter(vcfFile);
-
-                    fw.write(infoContact);
-
-                    fw.close();
-                    Log.e("Fichier créé", "Fichier créé");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-                if(Build.VERSION.SDK_INT>=24){
-                    Method m = null;
-                    try {
-                        m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
-                    } catch (NoSuchMethodException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        m.invoke(null);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-
-                Intent i=new Intent();
-
-                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                i.setAction(android.content.Intent.ACTION_VIEW);
-                i.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)+"/CSCLight.vcf")),"text/x-vcard");
-                startActivity(i);
-            }
-        });
     }
 
+    //DEMANDE DE PERMISSIONS
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        Log.v("PASSAGE  PERMISSIOM", "BEFORE IF");
-
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Log.v("PERMISSION", "Permission: " + permissions[0] + "was " + grantResults[0]);
             Log.e("PASSAGE  PERMISSION", "ACCORDÉE");
@@ -203,8 +89,146 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.button_valider) {
+            isStoragePermissionGranted(); //verifie la permission d'écriture dans le fichier
+            checkSwitch();
 
-    public void envoyer(View view) {
+            Log.e("Contact name", nom.getText().toString());
+            Log.e("Contact srname", prenom.getText().toString());
+            Log.e("Contact mail", mail.getText().toString());
+            Log.e("Contact tel", tel.getText().toString());
+
+            //creationvCard
+            String infoContact = "BEGIN:VCARD\n" +
+                    "VERSION:3.0\n" +
+                    "N:" + c1.getPrenom() + ";" + c1.getNom() + "\n" +
+                    "FN:" + c1.getPrenom() + " " + c1.getNom() + "\n" +
+                    "ORG: \n" +
+                    "TITLE: \n" +
+                    "LOGO;VALUE=URL;TYPE=GIF: \n" +
+                    "TEL;TYPE=WORK;VOICE: " + c1.getTel() + "\n" +
+                    "ADR;TYPE=WORK: \n" +
+                    "LABEL;TYPE=WORK: \n" +
+                    "ADR;TYPE=HOME: \n" +
+                    "LABEL;TYPE=HOME: \n" +
+                    "EMAIL;TYPE=PREF,INTERNET:" + c1.getMail() + " \n" +
+                    "REV:20080454T195242Z\n" +
+                    "END:VCARD";
+
+            Log.e("MESSAGE VCARD", infoContact);
+
+            File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
+            Log.e("Nom fichier", vcfFile.getName());
+            FileWriter fw = null;
+            try {
+                fw = new FileWriter(vcfFile);
+
+                fw.write(infoContact);
+
+                fw.close();
+                Log.e("Fichier créé", "Fichier créé");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if (view.getId() == R.id.button_envoyer) {
+            //envoie le fichier situé dans Downloads dans le stream NFC
+            envoiNFC();
+        } else if (view.getId() == R.id.button_recevoir) {
+            if(Build.VERSION.SDK_INT>=24){
+                Method m = null;
+                try {
+                    m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    m.invoke(null);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+
+            Intent i=new Intent();
+
+            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            i.setAction(android.content.Intent.ACTION_VIEW);
+            i.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)+"/CSCLight.vcf")),"text/x-vcard");
+            startActivity(i);
+        }
+    };
+
+    private void checkSwitch() {
+
+        c1 = new Contact();
+
+        Switch simpleSwitch = (Switch) findViewById(R.id.switch_name);
+        Boolean switchState = simpleSwitch.isChecked();
+
+
+        if (switchState == false) {
+            c1.setNom("");
+        } else {
+            c1.setNom(nom.getText().toString());
+        }
+
+        simpleSwitch = (Switch) findViewById(R.id.switch_surname);
+        switchState = simpleSwitch.isChecked();
+
+
+        if (switchState == false) {
+            c1.setPrenom("");
+        } else {
+            c1.setPrenom(prenom.getText().toString());
+        }
+
+        simpleSwitch = (Switch) findViewById(R.id.switch_mail);
+        switchState = simpleSwitch.isChecked();
+
+
+        if (switchState == false) {
+            c1.setMail("");
+        } else {
+            c1.setMail(mail.getText().toString());
+        }
+
+        simpleSwitch = (Switch) findViewById(R.id.switch_tel);
+        switchState = simpleSwitch.isChecked();
+
+        if (switchState == false) {
+            c1.setTel("");
+        } else {
+            c1.setTel(tel.getText().toString());
+        }
+
+    }
+
+    public boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v("PERMISSION", "Permission is granted");
+                return true;
+            } else {
+                Log.v("PERMISSION", "Permission is revoked");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("PERMISSION", "Permission is granted");
+            return true;
+        }
+    }
+
+    public void envoiNFC() {
+
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         // Check whether NFC is enabled on device
@@ -225,9 +249,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         } else {
             // NFC and Android Beam both are enabled
 
-            // File to be transferred
-            // For the sake of this tutorial I've placed an image
-            // named 'wallpaper.png' in the 'Pictures' directory
             String fileName = "CSCLIGHT.vcf";
 
             // Retrieve the path to the user's public pictures directory
@@ -243,25 +264,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     new Uri[]{Uri.fromFile(fileToTransfer)}, this);
 
 
-        }
-    }
-
-
-    // SAVE PERMISSION INUTILE SI SDK VERSION < 23
-    public boolean isStoragePermissionGranted() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
-                Log.v("PERMISSION", "Permission is granted");
-                return true;
-            } else {
-                Log.v("PERMISSION", "Permission is revoked");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                return false;
-            }
-        } else { //permission is automatically granted on sdk<23 upon installation
-            Log.v("PERMISSION", "Permission is granted");
-            return true;
         }
     }
 
