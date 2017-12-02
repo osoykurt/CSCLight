@@ -107,14 +107,15 @@
         app:srcCompat="@mipmap/ic_launcher_foreground" />
 
     <Switch
-        android:id="@+id/switch1"
+        android:id="@+id/switch_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/switch2"
+        android:checked="true"
+        app:layout_constraintBottom_toTopOf="@+id/switch_surname"
         app:layout_constraintEnd_toStartOf="@+id/edit_name"
         app:layout_constraintHorizontal_bias="0.486"
         app:layout_constraintStart_toStartOf="parent"
@@ -122,36 +123,38 @@
         app:layout_constraintVertical_bias="0.944" />
 
     <Switch
-        android:id="@+id/switch2"
+        android:id="@+id/switch_surname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/switch3"
+        android:checked="true"
+        app:layout_constraintBottom_toTopOf="@+id/switch_mail"
         app:layout_constraintEnd_toStartOf="@+id/edit_surname"
         app:layout_constraintHorizontal_bias="0.544"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Switch
-        android:id="@+id/switch3"
+        android:id="@+id/switch_mail"
         android:layout_width="wrap_content"
         android:layout_height="36dp"
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/switch4"
+        android:checked="true"
+        app:layout_constraintBottom_toTopOf="@+id/switch_tel"
         app:layout_constraintEnd_toStartOf="@+id/edit_mail"
         app:layout_constraintHorizontal_bias="0.679"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Switch
-        android:id="@+id/switch4"
+        android:id="@+id/switch_tel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="188dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:checked="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/edit_tel"
         app:layout_constraintHorizontal_bias="0.833"

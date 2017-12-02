@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
+
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.button_valider) {
@@ -134,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         } else if (view.getId() == R.id.button_envoyer) {
             //envoie le fichier situé dans Downloads dans le stream NFC
             envoiNFC();
-
         } else if (view.getId() == R.id.button_recevoir) {
             //synchronization
         }
@@ -142,48 +142,49 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     }
 
-
     private void checkSwitch() {
-        Switch simpleSwitch = (Switch) findViewById(R.id.switch1);
-        Boolean switchState = simpleSwitch.isChecked();
+
         c1 = new Contact();
 
-        if (switchState = false) {
+        Switch simpleSwitch = (Switch) findViewById(R.id.switch_name);
+        Boolean switchState = simpleSwitch.isChecked();
+
+
+
+        if (switchState == false) {
             c1.setNom("");
         } else {
             c1.setNom(nom.getText().toString());
         }
 
-        simpleSwitch = (Switch) findViewById(R.id.switch2);
+        simpleSwitch = (Switch) findViewById(R.id.switch_surname);
         switchState = simpleSwitch.isChecked();
 
 
-        if (switchState = false) {
-            c1.setNom("");
+        if (switchState == false) {
+            c1.setPrenom("");
         } else {
-            c1.setNom(prenom.getText().toString());
+            c1.setPrenom(prenom.getText().toString());
         }
 
-
-        simpleSwitch = (Switch) findViewById(R.id.switch3);
+        simpleSwitch = (Switch) findViewById(R.id.switch_mail);
         switchState = simpleSwitch.isChecked();
 
 
-        if (switchState = false) {
-            c1.setNom("");
+        if (switchState == false) {
+            c1.setMail("");
         } else {
-            c1.setNom(mail.getText().toString());
+            c1.setMail(mail.getText().toString());
         }
 
-        simpleSwitch = (Switch) findViewById(R.id.switch4);
+        simpleSwitch = (Switch) findViewById(R.id.switch_tel);
         switchState = simpleSwitch.isChecked();
 
-        if (switchState = false) {
-            c1.setNom("");
+        if (switchState == false) {
+            c1.setTel("");
         } else {
-            c1.setNom(tel.getText().toString());
+            c1.setTel(tel.getText().toString());
         }
-
     }
 
     public boolean isStoragePermissionGranted() {
