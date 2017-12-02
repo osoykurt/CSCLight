@@ -7,8 +7,11 @@ import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Environment;
+import android.os.StrictMode;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +27,8 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
@@ -147,6 +152,33 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+
+                if(Build.VERSION.SDK_INT>=24){
+                    Method m = null;
+                    try {
+                        m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                    } catch (NoSuchMethodException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        m.invoke(null);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+
+                Intent i=new Intent();
+
+                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                i.setAction(android.content.Intent.ACTION_VIEW);
+                i.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)+"/CSCLight.vcf")),"text/x-vcard");
+                startActivity(i);
             }
         });
     }
