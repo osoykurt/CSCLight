@@ -7,13 +7,15 @@ import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Environment;
+import android.os.StrictMode;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
@@ -25,6 +27,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, View.OnClickListener {
@@ -60,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         buttonRecevoir = (Button) findViewById(R.id.button_recevoir);
         buttonRecevoir.setOnClickListener(this);
-
 
 
     }
@@ -132,12 +135,34 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             //envoie le fichier situé dans Downloads dans le stream NFC
             envoiNFC();
         } else if (view.getId() == R.id.button_recevoir) {
-            //synchronization
+            if (Build.VERSION.SDK_INT >= 24) {
+                Method m = null;
+                try {
+                    m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    m.invoke(null);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+
+            Intent i = new Intent();
+
+            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            i.setAction(android.content.Intent.ACTION_VIEW);
+            i.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/CSCLight.vcf")), "text/x-vcard");
+            startActivity(i);
         }
-
-
     }
-
+    
     private void checkSwitch() {
 
         c1 = new Contact();
@@ -182,10 +207,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
             c1.setTel(tel.getText().toString());
         }
+
     }
 
     private void checkMail(String mail) {
-        Pattern p  = Pattern.compile(".+@.+\\.[a-z]+");
+        Pattern p = Pattern.compile(".+@.+\\.[a-z]+");
         Matcher m = p.matcher(mail);
         if (!m.matches()) {
             Toast.makeText(MainActivity.this, R.string.email_format_error,
