@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         buttonRecevoir.setOnClickListener(this);
 
 
-    }
 
+    }
 
     //DEMANDE DE PERMISSIONS
     @Override
@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         }
     }
-
 
     @Override
     public void onClick(View view) {
@@ -142,13 +141,13 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     }
 
+
     private void checkSwitch() {
 
         c1 = new Contact();
 
         Switch simpleSwitch = (Switch) findViewById(R.id.switch_name);
         Boolean switchState = simpleSwitch.isChecked();
-
 
 
         if (switchState == false) {
