@@ -1,6 +1,7 @@
 package ca.uqac.csclight;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -56,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        checkNFCactivation();
+
         setContentView(R.layout.activity_main);
 
         nom = (EditText) findViewById(R.id.edit_name);
@@ -153,22 +157,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     && sharedPref.getString(NameKey, null).equals(prenom.getText().toString())) {
                 Log.v("Test", "First if - first if ");
 
-                if(sharedPref.getString(PhoneKey, null).equals(tel.getText().toString())
+                if (sharedPref.getString(PhoneKey, null).equals(tel.getText().toString())
                         && sharedPref.getString(EmailKey, null).equals(mail.getText().toString())) {
 
                     buttonValider.setEnabled(false);
-                }
-                else {
+                } else {
                     buttonValider.setEnabled(true);
                 }
-            }
-            else {
+            } else {
                 Log.v("Test", "First if - else");
                 buttonValider.setEnabled(true);
             }
-        }
-        else
-        if ((nom.getText().toString().equals("") || prenom.getText().toString().equals(""))) {
+        } else if ((nom.getText().toString().equals("") || prenom.getText().toString().equals(""))) {
             Log.v("Test", "Else - first if");
             buttonValider.setEnabled(false);
         } else {
@@ -183,6 +183,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         File f = new File(Environment.getExternalStoragePublicDirectory("beam") + "/CSCLight.vcf");
         f.delete();
+
+        checkNFCactivation();
 
     }
 
@@ -275,22 +277,22 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 "REV:20080454T195242Z\n" +
                 "END:VCARD";
 
-            Log.e("MESSAGE VCARD", infoContact);
+        Log.e("MESSAGE VCARD", infoContact);
 
-            File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
-            Log.e("Nom fichier", vcfFile.getName());
-            FileWriter fw = null;
-            try {
-                fw = new FileWriter(vcfFile);
+        File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
+        Log.e("Nom fichier", vcfFile.getName());
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(vcfFile);
 
-                fw.write(infoContact);
+            fw.write(infoContact);
 
-                fw.close();
-                Log.e("Fichier créé", "Fichier créé");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            fw.close();
+            Log.e("Fichier créé", "Fichier créé");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void checkSwitch() {
@@ -365,11 +367,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
-    public void envoiNFC() {
-        Log.e("PASSAGE NFC", "NFC");
+    public boolean checkNFCactivation() {
+
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
-        // Check whether NFC is enabled on device
         if (!nfcAdapter.isEnabled()) {
             // NFC is disabled, show the settings UI
             // to enable NFC
@@ -384,22 +385,30 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             Toast.makeText(this, "Please enable Android Beam.",
                     Toast.LENGTH_SHORT).show();
             startActivity(new Intent(Settings.ACTION_NFCSHARING_SETTINGS));
-        } else {
-            // NFC and Android Beam both are enabled
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public void envoiNFC() {
+        Log.e("PASSAGE NFC", "NFC");
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        // Check whether NFC is enabled on device
+        if (checkNFCactivation()) {
 
             String fileName = "CSCLIGHT.vcf";
 
             // Retrieve the path to the user's public pictures directory
-            File fileDirectory = Environment
-                    .getExternalStoragePublicDirectory(
-                            Environment.DIRECTORY_DOWNLOADS);
+            File fileDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
             // Create a new file using the specified directory and name
             File fileToTransfer = new File(fileDirectory, fileName);
             fileToTransfer.setReadable(true, false);
 
-            nfcAdapter.setBeamPushUris(
-                    new Uri[]{Uri.fromFile(fileToTransfer)}, this);
+            nfcAdapter.setBeamPushUris(new Uri[]{Uri.fromFile(fileToTransfer)}, this);
 
             Log.e("PASSAGE NFC", "OK");
 
