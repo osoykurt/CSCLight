@@ -55,9 +55,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        checkNFCactivation();
-
         setContentView(R.layout.activity_main);
 
         nom = (EditText) findViewById(R.id.edit_name);
@@ -160,10 +157,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         || (!mail.getText().toString().isEmpty() && !isValidMail(mail.getText().toString()))) {
 
                     buttonValider.setEnabled(false);
-                } else {
+                }
+                else {
                     buttonValider.setEnabled(true);
                 }
-            } else {
+            }
+            else {
                 Log.v("Test", "First if - else");
                 if(!mail.getText().toString().isEmpty() && !isValidMail(mail.getText().toString())) {
                     buttonValider.setEnabled(false);
@@ -189,8 +188,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         File f = new File(Environment.getExternalStoragePublicDirectory("beam") + "/CSCLight.vcf");
         f.delete();
-
-        checkNFCactivation();
 
     }
 
@@ -283,22 +280,22 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 "REV:20080454T195242Z\n" +
                 "END:VCARD";
 
-            Log.e("MESSAGE VCARD", infoContact);
+        Log.e("MESSAGE VCARD", infoContact);
 
-            File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
-            Log.e("Nom fichier", vcfFile.getName());
-            FileWriter fw = null;
-            try {
-                fw = new FileWriter(vcfFile);
+        File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
+        Log.e("Nom fichier", vcfFile.getName());
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(vcfFile);
 
-                fw.write(infoContact);
+            fw.write(infoContact);
 
-                fw.close();
-                Log.e("Fichier créé", "Fichier créé");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            fw.close();
+            Log.e("Fichier créé", "Fichier créé");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void checkSwitch() {
@@ -358,8 +355,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
-    public boolean checkNFCactivation() {
-
+    public void envoiNFC() {
+        Log.e("PASSAGE NFC", "NFC");
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         // Check whether NFC is enabled on device
@@ -377,30 +374,22 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             Toast.makeText(this, "Please enable Android Beam.",
                     Toast.LENGTH_SHORT).show();
             startActivity(new Intent(Settings.ACTION_NFCSHARING_SETTINGS));
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public void envoiNFC() {
-        Log.e("PASSAGE NFC", "NFC");
-        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-
-        // Check whether NFC is enabled on device
-        if (checkNFCactivation()) {
+        } else {
+            // NFC and Android Beam both are enabled
 
             String fileName = "CSCLIGHT.vcf";
 
             // Retrieve the path to the user's public pictures directory
-            File fileDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File fileDirectory = Environment
+                    .getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DOWNLOADS);
 
             // Create a new file using the specified directory and name
             File fileToTransfer = new File(fileDirectory, fileName);
             fileToTransfer.setReadable(true, false);
 
-            nfcAdapter.setBeamPushUris(new Uri[]{Uri.fromFile(fileToTransfer)}, this);
+            nfcAdapter.setBeamPushUris(
+                    new Uri[]{Uri.fromFile(fileToTransfer)}, this);
 
             Log.e("PASSAGE NFC", "OK");
 
@@ -410,4 +399,3 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
 
 }
-
