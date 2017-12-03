@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
+             public void afterTextChanged(Editable editable) {
                 buttonValiderManager();
             }
         });
