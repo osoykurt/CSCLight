@@ -263,7 +263,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public void onClick(View view) {
         if (view.getId() == R.id.button_valider) {
             isStoragePermissionGranted(); //verifie la permission d'écriture dans le fichier
-            checkSwitch();
 
             Log.e("Contact name", nom.getText().toString());
             Log.e("Contact surname", prenom.getText().toString());
@@ -279,6 +278,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             editor.putBoolean(MailSwitchKey, mailSwitch.isChecked());
             editor.putBoolean(TelSwitchKey, telSwitch.isChecked());
             editor.commit();
+
+            checkSwitch();
 
             Toast.makeText(this, "Contact Saved.", Toast.LENGTH_SHORT).show();
 
