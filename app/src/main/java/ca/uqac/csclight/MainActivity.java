@@ -10,10 +10,8 @@ import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StrictMode;
-import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -154,8 +152,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     && sharedPref.getString(NameKey, null).equals(prenom.getText().toString())) {
                 Log.v("Test", "First if - first if ");
 
-                if(sharedPref.getString(PhoneKey, null).equals(tel.getText().toString())
-                        && sharedPref.getString(EmailKey, null).equals(mail.getText().toString())) {
+                if((sharedPref.getString(PhoneKey, null).equals(tel.getText().toString())
+                        && sharedPref.getString(EmailKey, null).equals(mail.getText().toString()))
+                        || (!mail.getText().toString().isEmpty() && !isValidMail(mail.getText().toString()))) {
 
                     buttonValider.setEnabled(false);
                 }
@@ -165,11 +164,16 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
             else {
                 Log.v("Test", "First if - else");
-                buttonValider.setEnabled(true);
+                if(!mail.getText().toString().isEmpty() && !isValidMail(mail.getText().toString())) {
+                    buttonValider.setEnabled(false);
+                }
+                else {
+                    buttonValider.setEnabled(true);
+                }
             }
         }
-        else
-        if ((nom.getText().toString().equals("") || prenom.getText().toString().equals(""))) {
+        else if ((nom.getText().toString().equals("") || prenom.getText().toString().equals("")
+                || (!isValidMail(mail.getText().toString()) && !isValidMail(mail.getText().toString())))) {
             Log.v("Test", "Else - first if");
             buttonValider.setEnabled(false);
         } else {
@@ -297,35 +301,16 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void checkSwitch() {
 
         c1 = new Contact();
-
-        /*Switch simpleSwitch = (Switch) findViewById(R.id.switch_name);
-        Boolean switchState = simpleSwitch.isChecked();
-
-
-        if (switchState == false) {
-            c1.setNom("");
-        } else {
-            c1.setNom(nom.getText().toString());
-        }
-
-        simpleSwitch = (Switch) findViewById(R.id.switch_surname);
-        switchState = simpleSwitch.isChecked();
-
-
-        if (switchState == false) {
-            c1.setPrenom("");
-        } else {
-            c1.setPrenom(prenom.getText().toString());
-        }*/
+        c1.setNom(nom.getText().toString());
+        c1.setPrenom(prenom.getText().toString());
 
         Switch simpleSwitch = (Switch) findViewById(R.id.switch_mail);
         Boolean switchState = simpleSwitch.isChecked();
 
-        checkMail(mail.getText().toString());
+        isValidMail(mail.getText().toString());
         if (switchState == false) {
             c1.setMail("");
         } else {
-            checkMail(mail.getText().toString());
             c1.setMail(mail.getText().toString());
         }
 
@@ -340,12 +325,16 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     }
 
-    private void checkMail(String mail) {
+    private boolean isValidMail(String mail) {
         Pattern p = Pattern.compile(".+@.+\\.[a-z]+");
         Matcher m = p.matcher(mail);
         if (!m.matches()) {
-            Toast.makeText(MainActivity.this, R.string.email_format_error,
-                    Toast.LENGTH_SHORT).show();
+            /*Toast.makeText(MainActivity.this, R.string.email_format_error,
+                    Toast.LENGTH_SHORT).show();*/
+            return false;
+        }
+        else {
+            return true;
         }
     }
 
