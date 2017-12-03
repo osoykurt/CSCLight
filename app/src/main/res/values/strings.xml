@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">CSCLight</string>
-    <string name="intro">Indiquer vos informations, valider et envoyez !</string>
+    <string name="intro">Indiquez vos informations, validez et envoyez !</string>
     <string name="name">Nom</string>
-    <string name="surname">Prenom</string>
+    <string name="surname">Prénom</string>
     <string name="tel">Numéro de téléphone</string>
     <string name="mail">Adresse mail</string>
     <string name="valider">Valider Contact</string>
