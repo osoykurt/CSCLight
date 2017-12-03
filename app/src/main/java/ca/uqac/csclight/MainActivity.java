@@ -282,8 +282,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         Log.e("MESSAGE VCARD", infoContact);
 
-        File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
+        File vcfDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
+        vcfDir.mkdirs();
+
+        File vcfFile = new File(vcfDir, "CSCLight.vcf");
         Log.e("Nom fichier", vcfFile.getName());
         FileWriter fw = null;
         try {
