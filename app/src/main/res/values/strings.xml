@@ -4,7 +4,7 @@
     <string name="name">Nom</string>
     <string name="surname">Prenom</string>
     <string name="tel">Numéro de téléphone</string>
-    <string name="mail">adresse mail</string>
+    <string name="mail">Adresse mail</string>
     <string name="valider">Valider Contact</string>
     <string name="envoyer">Envoyer</string>
     <string name="recevoir">Synchroniser</string>
