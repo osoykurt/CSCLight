@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">CSCLight</string>
+    <string name="intro">Indiquer vos informations, valider et envoyez !</string>
+    <string name="name">Nom</string>
+    <string name="surname">Prenom</string>
+    <string name="tel">Numéro de téléphone</string>
+    <string name="mail">adresse mail</string>
+    <string name="valider">Valider Contact</string>
+    <string name="envoyer">Envoyer</string>
+    <string name="recevoir">Synchroniser</string>
+    <string name="csclogo">CSCLogo</string>
+    <string name="shared_pref">sharedPreferences</string>
+    <string name="email_format_error">Erreur format de mail invalide</string>
 </resources>
