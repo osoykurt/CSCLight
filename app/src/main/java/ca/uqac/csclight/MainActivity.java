@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         setContentView(R.layout.activity_main);
 
         nom = (EditText) findViewById(R.id.edit_name);
@@ -152,27 +153,23 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     && sharedPref.getString(NameKey, null).equals(prenom.getText().toString())) {
                 Log.v("Test", "First if - first if ");
 
-                if((sharedPref.getString(PhoneKey, null).equals(tel.getText().toString())
+                if ((sharedPref.getString(PhoneKey, null).equals(tel.getText().toString())
                         && sharedPref.getString(EmailKey, null).equals(mail.getText().toString()))
                         || (!mail.getText().toString().isEmpty() && !isValidMail(mail.getText().toString()))) {
 
                     buttonValider.setEnabled(false);
-                }
-                else {
+                } else {
                     buttonValider.setEnabled(true);
                 }
-            }
-            else {
+            } else {
                 Log.v("Test", "First if - else");
-                if(!mail.getText().toString().isEmpty() && !isValidMail(mail.getText().toString())) {
+                if (!mail.getText().toString().isEmpty() && !isValidMail(mail.getText().toString())) {
                     buttonValider.setEnabled(false);
-                }
-                else {
+                } else {
                     buttonValider.setEnabled(true);
                 }
             }
-        }
-        else if ((nom.getText().toString().equals("") || prenom.getText().toString().equals("")
+        } else if ((nom.getText().toString().equals("") || prenom.getText().toString().equals("")
                 || (!isValidMail(mail.getText().toString()) && !isValidMail(mail.getText().toString())))) {
             Log.v("Test", "Else - first if");
             buttonValider.setEnabled(false);
@@ -186,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     protected void onResume() {
         super.onResume();
 
+        checkNFCactivation(nfcAdapter);
         File f = new File(Environment.getExternalStoragePublicDirectory("beam") + "/CSCLight.vcf");
         f.delete();
 
@@ -227,6 +225,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             editor.putString(PhoneKey, tel.getText().toString());
             editor.putString(EmailKey, mail.getText().toString());
             editor.commit();
+
+            Toast.makeText(this, "Contact Saved.", Toast.LENGTH_SHORT).show();
 
             buildVcard(); //creationvCard
         } else if (view.getId() == R.id.button_envoyer) {
@@ -332,8 +332,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             /*Toast.makeText(MainActivity.this, R.string.email_format_error,
                     Toast.LENGTH_SHORT).show();*/
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
@@ -355,26 +354,32 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
-    public void envoiNFC() {
-        Log.e("PASSAGE NFC", "NFC");
-        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+    public boolean checkNFCactivation(NfcAdapter adapter) {
 
         // Check whether NFC is enabled on device
-        if (!nfcAdapter.isEnabled()) {
+        if (!adapter.isEnabled()) {
             // NFC is disabled, show the settings UI
             // to enable NFC
-            Toast.makeText(this, "Please enable NFC.",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please enable NFC.", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
         }
         // Check whether Android Beam feature is enabled on device
-        else if (!nfcAdapter.isNdefPushEnabled()) {
+        else if (!adapter.isNdefPushEnabled()) {
             // Android Beam is disabled, show the settings UI
             // to enable Android Beam
-            Toast.makeText(this, "Please enable Android Beam.",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please enable Android Beam.", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(Settings.ACTION_NFCSHARING_SETTINGS));
-        } else {
+        }
+
+        return true;
+    }
+
+
+    public void envoiNFC() {
+        Log.e("PASSAGE NFC", "NFC");
+
+        // Check whether NFC is enabled on device
+        if (checkNFCactivation(nfcAdapter)) {
             // NFC and Android Beam both are enabled
 
             String fileName = "CSCLIGHT.vcf";
@@ -396,6 +401,5 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         }
     }
-
 
 }
