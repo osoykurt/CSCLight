@@ -19,6 +19,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     EditText mail;
     FileOutputStream fOut = null;
     SharedPreferences sharedPref;
+    Switch mailSwitch;
+    Switch telSwitch;
 
     private Button buttonValider, buttonEnvoyer, buttonRecevoir;
 
@@ -49,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public static final String NameKey = "nameKey";
     public static final String PhoneKey = "phoneKey";
     public static final String EmailKey = "emailKey";
+    public static final String MailSwitchKey = "mailSwitchKey";
+    public static final String TelSwitchKey = "telSwitchKey";
 
     Contact c1;
 
@@ -64,6 +69,22 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         buttonValider = (Button) findViewById(R.id.button_valider);
 
+        mailSwitch = (Switch) findViewById(R.id.switch_mail);
+        mailSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                buttonValiderManager();
+            }
+        });
+
+        telSwitch = (Switch) findViewById(R.id.switch_tel);
+        telSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                buttonValiderManager();
+            }
+        });
+
         sharedPref = getSharedPreferences(getString(R.string.shared_pref), Context.MODE_PRIVATE);
 
         if (sharedPref.contains(SurnameKey) && sharedPref.contains(NameKey)) {
@@ -71,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             prenom.setText(sharedPref.getString(NameKey, null));
             mail.setText(sharedPref.getString(EmailKey, null));
             tel.setText(sharedPref.getString(PhoneKey, null));
+            mailSwitch.setChecked(sharedPref.getBoolean(MailSwitchKey, false));
+            telSwitch.setChecked(sharedPref.getBoolean(TelSwitchKey, false));
         }
 
         buttonValiderManager();
@@ -146,39 +169,64 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void buttonValiderManager() {
         Log.v("Test", "function");
         if (sharedPref.contains(SurnameKey) && sharedPref.contains(NameKey)) {
-            Log.v("Test", "First if");
+            Log.v("Test", "[First if]");
+            Log.v("Test", "SharedPref Contains keys");
 
             if (sharedPref.getString(SurnameKey, null).equals(nom.getText().toString())
                     && sharedPref.getString(NameKey, null).equals(prenom.getText().toString())) {
-                Log.v("Test", "First if - first if ");
+                Log.v("Test", "[First if - first if]");
+                Log.v("Test", "SharedPref values equals to input text");
 
-                if((sharedPref.getString(PhoneKey, null).equals(tel.getText().toString())
-                        && sharedPref.getString(EmailKey, null).equals(mail.getText().toString()))
-                        || (!mail.getText().toString().isEmpty() && !isValidMail(mail.getText().toString()))) {
-
-                    buttonValider.setEnabled(false);
+                if ((sharedPref.getString(PhoneKey, null).equals(tel.getText().toString())
+                        && sharedPref.getString(EmailKey, null).equals(mail.getText().toString()))) {
+                    Log.v("Test", "Phone & Mail have not changed");
+                    if(sharedPref.getBoolean(MailSwitchKey, false) != mailSwitch.isChecked()
+                            || sharedPref.getBoolean(TelSwitchKey, false) != telSwitch.isChecked()) {
+                        Log.v("Test", "But a switch has not changed it state");
+                        buttonValider.setEnabled(true);
+                    }
+                    else {
+                        Log.v("Test", "And the switch state has not changed");
+                        buttonValider.setEnabled(false);
+                    }
+                } else {
+                    Log.v("Test", "Phone OR Mail has changed");
+                    if (!mail.getText().toString().isEmpty() && isValidMail(mail.getText().toString())
+                            && !tel.getText().toString().isEmpty()) {
+                        Log.v("Test", "Correct mail & tel");
+                        buttonValider.setEnabled(true);
+                    } else {
+                        Log.v("Test", "Incorrect mail OR tel");
+                        buttonValider.setEnabled(false);
+                    }
                 }
-                else {
+            } else {
+                Log.v("Test", "[First if - else]");
+                Log.v("Test", "Input text values different from SharedPref");
+                if (mail.getText().toString().isEmpty() || !isValidMail(mail.getText().toString())) {
+                    buttonValider.setEnabled(false);
+                } else {
                     buttonValider.setEnabled(true);
                 }
             }
-            else {
-                Log.v("Test", "First if - else");
-                if(!mail.getText().toString().isEmpty() && !isValidMail(mail.getText().toString())) {
-                    buttonValider.setEnabled(false);
-                }
-                else {
-                    buttonValider.setEnabled(true);
-                }
-            }
-        }
-        else if ((nom.getText().toString().equals("") || prenom.getText().toString().equals("")
-                || (!isValidMail(mail.getText().toString()) && !isValidMail(mail.getText().toString())))) {
-            Log.v("Test", "Else - first if");
+        } else if ((nom.getText().toString().equals("")
+                || prenom.getText().toString().equals("")
+                || !isValidMail(mail.getText().toString()))) {
+            Log.v("Test", "[Else - first if]");
+            Log.v("Test", "SharedPref does not contain keys (first use)");
+            Log.v("Test", "But some errors in the form");
             buttonValider.setEnabled(false);
         } else {
-            Log.v("Test", "Else - else");
-            buttonValider.setEnabled(true);
+            Log.v("Test", "[Else - else]");
+            Log.v("Test", "SharedPref does not contain keys (first use)");
+            Log.v("Test", "And the form does not contain any error");
+
+            if (sharedPref.getBoolean(MailSwitchKey, false) != mailSwitch.isChecked()
+                    || sharedPref.getBoolean(TelSwitchKey, false) != telSwitch.isChecked()) {
+                buttonValider.setEnabled(true);
+            } else {
+                buttonValider.setEnabled(false);
+            }
         }
     }
 
@@ -226,9 +274,13 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             editor.putString(NameKey, prenom.getText().toString());
             editor.putString(PhoneKey, tel.getText().toString());
             editor.putString(EmailKey, mail.getText().toString());
+            editor.putBoolean(MailSwitchKey, mailSwitch.isChecked());
+            editor.putBoolean(TelSwitchKey, telSwitch.isChecked());
             editor.commit();
 
             buildVcard(); //creationvCard
+
+            buttonValider.setEnabled(false);
         } else if (view.getId() == R.id.button_envoyer) {
             //envoie le fichier situé dans Downloads dans le stream NFC
             envoiNFC();
@@ -280,47 +332,44 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 "REV:20080454T195242Z\n" +
                 "END:VCARD";
 
-            Log.e("MESSAGE VCARD", infoContact);
+        Log.e("MESSAGE VCARD", infoContact);
 
-            File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
-            Log.e("Nom fichier", vcfFile.getName());
-            FileWriter fw = null;
-            try {
-                fw = new FileWriter(vcfFile);
+        File vcfFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS), "CSCLight.vcf");
+        Log.e("Nom fichier", vcfFile.getName());
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(vcfFile);
 
-                fw.write(infoContact);
+            fw.write(infoContact);
 
-                fw.close();
-                Log.e("Fichier créé", "Fichier créé");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            fw.close();
+            Log.e("Fichier créé", "Fichier créé");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void checkSwitch() {
 
         c1 = new Contact();
-        c1.setNom(nom.getText().toString());
-        c1.setPrenom(prenom.getText().toString());
+        c1.setNom(sharedPref.getString(SurnameKey, null));
+        c1.setPrenom(sharedPref.getString(NameKey, null));
 
-        Switch simpleSwitch = (Switch) findViewById(R.id.switch_mail);
-        Boolean switchState = simpleSwitch.isChecked();
+        Boolean switchState = mailSwitch.isChecked();
 
-        isValidMail(mail.getText().toString());
         if (switchState == false) {
             c1.setMail("");
         } else {
-            c1.setMail(mail.getText().toString());
+            c1.setMail(sharedPref.getString(EmailKey, null));
         }
 
-        simpleSwitch = (Switch) findViewById(R.id.switch_tel);
-        switchState = simpleSwitch.isChecked();
+        switchState = telSwitch.isChecked();
 
         if (switchState == false) {
             c1.setTel("");
         } else {
-            c1.setTel(tel.getText().toString());
+            c1.setTel(sharedPref.getString(PhoneKey, null));
         }
 
     }
@@ -332,8 +381,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             /*Toast.makeText(MainActivity.this, R.string.email_format_error,
                     Toast.LENGTH_SHORT).show();*/
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
